@@ -159,14 +159,14 @@
 <body>
 
   <div class="container">
-    <!-- Enhanced Logo Display - CHANGED TO logo.jpg -->
+    <!-- Logo using local file with GitHub Pages compatible path -->
     <div class="logo-container">
-      <img src="./logo.jpg" alt="GPI Logo" class="logo">
+      <img src="logo.jpg" alt="GPI Logo" class="logo" 
+           onerror="this.src='https://placehold.co/150x150/2e7d32/white?text=GPI+Logo'">
       <h1>GENG PLASTIK IJA (GPI)</h1>
       <h2 style="color:#388e3c;">Plogging Waste Tracker</h2>
     </div>
 
-    <!-- Rest of your HTML remains exactly the same -->
     <!-- Form Inputs -->
     <label for="date">Date of Plogging:</label>
     <input type="date" id="date" required>
