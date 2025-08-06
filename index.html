@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>GENG PLASTIK IJA (GPI) – Plogging Waste Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary-color: #2e7d32;
+      --secondary-color: #66bb6a;
+      --bg-color: #f1f8e9;
+      --text-color: #1b5e20;
+      --button-color: #388e3c;
+      --button-text: #ffffff;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      margin: 0;
+      padding: 20px;
+    }
+
+    .logo-container {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .logo {
+      max-width: 150px;
+      height: auto;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      border: 3px solid var(--primary-color);
+      padding: 5px;
+      background: white;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+      margin-top: 10px;
+    }
+
+    .container {
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      margin: auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: var(--button-color);
+      color: var(--button-text);
+      padding: 12px;
+      margin-top: 20px;
+      width: 100%;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #export-btn {
+      background-color: #1976D2;
+      margin-top: 10px;
+    }
+
+    #export-btn:hover {
+      background-color: #1565C0;
+    }
+
+    button:hover {
+      background-color: var(--secondary-color);
+    }
+
+    .summary, .type-summary, table {
+      margin-top: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #e8f5e9;
+      margin-top: 15px;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border: 1px solid #c8e6c9;
+    }
+
+    th {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    #type-summary-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    #type-summary-list li {
+      padding: 5px 0;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 15px;
+      }
+      th, td {
+        padding: 8px;
+        font-size: 14px;
+      }
+      .logo {
+        max-width: 120px;
+      }
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      margin: 10px 0;
+    }
+
+    .session-controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #new-session-btn {
+      background-color: #FF5722;
+      width: auto;
+      padding: 8px 15px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Enhanced Logo Display -->
+    <div class="logo-container">
+      <img src="logo.jpeg" alt="GPI Logo" class="logo">
+      <h1>GENG PLASTIK IJA (GPI)</h1>
+      <h2 style="color:#388e3c;">Plogging Waste Tracker</h2>
+    </div>
+
+    <!-- Form Inputs -->
+    <label for="date">Date of Plogging:</label>
+    <input type="date" id="date" required>
+
+    <label for="location">Location:</label>
+    <input type="text" id="location" placeholder="Enter location" required>
+
+    <label for="district">District:</label>
+    <select id="district" required>
+      <option value="">Select district</option>
+      <option>Besut</option>
+      <option>Setiu</option>
+      <option>Kuala Nerus</option>
+      <option>Kuala Terengganu</option>
+      <option>Marang</option>
+      <option>Dungun</option>
+      <option>Kemaman</option>
+      <option>Hulu Terengganu</option>
+    </select>
+
+    <!-- Waste Type First -->
+    <label for="type">Waste Type:</label>
+    <select id="type" required>
+      <option value="Plastic">Plastic</option>
+      <option value="Mixed">Mixed</option>
+    </select>
+
+    <!-- Weight After -->
+    <label for="weight">Weight (kg):</label>
+    <input type="number" id="weight" placeholder="Enter weight" min="0" step="0.01" required>
+
+    <button onclick="addBag()">📤 Submit Bag</button>
+    <button id="export-btn" onclick="exportToExcel()">📊 Export to Excel</button>
+    <div id="loading" class="loading">Saving data...</div>
+
+    <div class="session-controls">
+      <button id="new-session-btn" onclick="startNewSession()">♻️ Start New Plogging Session</button>
+    </div>
+
+    <div class="summary">
+      <h3>Session Summary</h3>
+      <p id="summary-text">No bags added yet.</p>
+    </div>
+
+    <div class="type-summary">
+      <h4>Summary by Waste Type</h4>
+      <ul id="type-summary-list">
+        <li>Plastic: 0 bags – 0.00 kg</li>
+        <li>Mixed: 0 bags – 0.00 kg</li>
+      </ul>
+    </div>
+
+    <div class="all-bags">
+      <h3>Current Session Bags</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>Date</th>
+            <th>Location</th>
+            <th>District</th>
+            <th>Weight (kg)</th>
+            <th>Waste Type</th>
+          </tr>
+        </thead>
+        <tbody id="bag-table-body">
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // Session-based data storage
+    let bags = [];
+    let currentSession = Date.now(); // Unique session ID
+
+    // Clear all data when page loads (fresh session)
+    function initSession() {
+      bags = [];
+      updateDisplay();
+      document.getElementById("date").valueAsDate = new Date(); // Set today's date
+      document.getElementById("location").value = "";
+    }
+
+    // Start a new session manually
+    function startNewSession() {
+      if (bags.length > 0 && !confirm("Start new session? Current data will be cleared!")) {
+        return;
+      }
+      currentSession = Date.now();
+      initSession();
+      alert("New plogging session started!");
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', (event) => {
+      initSession();
+    });
+
+    async function addBag() {
+      const date = document.getElementById("date").value;
+      const location = document.getElementById("location").value.trim();
+      const district = document.getElementById("district").value;
+      const weight = parseFloat(document.getElementById("weight").value);
+      const type = document.getElementById("type").value;
+
+      if (!date || !location || !district || isNaN(weight) || weight <= 0) {
+        alert("Please fill in all fields correctly.");
+        return;
+      }
+
+      const bag = { 
+        date, 
+        location, 
+        district, 
+        weight, 
+        type,
+        sessionId: currentSession // Tag with current session
+      };
+      
+      bags.push(bag);
+      clearInputsExceptDateAndLocation();
+      updateDisplay();
+    }
+
+    async function exportToExcel() {
+      if (bags.length === 0) {
+        alert("No data to export!");
+        return;
+      }
+
+      try {
+        document.getElementById("loading").style.display = "block";
+        document.getElementById("loading").textContent = "Preparing export...";
+        
+        // Convert to Excel format
+        let excelHtml = `
+          <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+                xmlns:x="urn:schemas-microsoft-com:office:excel">
+          <head>
+            <meta charset="UTF-8">
+            <style>
+              table {
+                border-collapse: collapse;
+                width: 100%;
+              }
+              th {
+                background-color: #2e7d32;
+                color: white;
+                font-weight: bold;
+                padding: 8px;
+                text-align: center;
+                border: 1px solid #1b5e20;
+              }
+              td {
+                padding: 6px;
+                text-align: center;
+                border: 1px solid #c8e6c9;
+              }
+              tr:nth-child(even) {
+                background-color: #f1f8e9;
+              }
+            </style>
+          </head>
+          <body>
+          <h2>GENG PLASTIK IJA - Plogging Data (Session: ${new Date(currentSession).toLocaleString()})</h2>
+          <table>
+            <tr>
+              <th>No.</th>
+              <th>Date</th>
+              <th>Location</th>
+              <th>District</th>
+              <th>Weight (kg)</th>
+              <th>Waste Type</th>
+            </tr>`;
+
+        bags.forEach((bag, index) => {
+          excelHtml += `
+            <tr>
+              <td>${index + 1}</td>
+              <td>${bag.date}</td>
+              <td>${bag.location}</td>
+              <td>${bag.district}</td>
+              <td>${bag.weight.toFixed(2)}</td>
+              <td>${bag.type}</td>
+            </tr>`;
+        });
+
+        excelHtml += `</table></body></html>`;
+
+        // Create download link
+        const blob = new Blob([excelHtml], { type: 'application/vnd.ms-excel' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `GPI_Plogging_Session_${currentSession}.xls`;
+        a.click();
+        
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("loading").textContent = "Saving data...";
+        
+      } catch (error) {
+        console.error("Export failed:", error);
+        alert("Export failed. Check console for details.");
+        document.getElementById("loading").style.display = "none";
+      }
+    }
+
+    function clearInputsExceptDateAndLocation() {
+      document.getElementById("weight").value = '';
+      document.getElementById("type").value = 'Plastic';
+    }
+
+    function updateDisplay() {
+      const tbody = document.getElementById("bag-table-body");
+      tbody.innerHTML = '';
+      let total = 0, plasticTotal = 0, mixedTotal = 0;
+      let plasticCount = 0, mixedCount = 0;
+
+      bags.forEach((bag, index) => {
+        total += bag.weight;
+        if (bag.type === "Plastic") {
+          plasticTotal += bag.weight;
+          plasticCount++;
+        } else {
+          mixedTotal += bag.weight;
+          mixedCount++;
+        }
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${bag.date}</td>
+          <td>${bag.location}</td>
+          <td>${bag.district}</td>
+          <td>${bag.weight.toFixed(2)}</td>
+          <td>${bag.type}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      document.getElementById("summary-text").textContent =
+        bags.length === 0
+        ? "No bags added yet."
+        : `Total Bags: ${bags.length} | Total Weight: ${total.toFixed(2)} kg`;
+
+      document.getElementById("type-summary-list").innerHTML = `
+        <li>Plastic: ${plasticCount} bag(s) – ${plasticTotal.toFixed(2)} kg</li>
+        <li>Mixed: ${mixedCount} bag(s) – ${mixedTotal.toFixed(2)} kg</li>
+      `;
+    }
+  </script>
+</body>
+</html>
