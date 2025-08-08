@@ -242,6 +242,7 @@
     // Session-based data storage
     let bags = [];
     let currentSession = Date.now(); // Unique session ID
+    let lastSelectedType = "Plastic"; // Track the last selected waste type
 
     // Clear all data when page loads (fresh session)
     function initSession() {
@@ -249,6 +250,7 @@
       updateDisplay();
       document.getElementById("date").valueAsDate = new Date(); // Set today's date
       document.getElementById("location").value = "";
+      document.getElementById("type").value = lastSelectedType; // Use the last selected type
     }
 
     // Start a new session manually
@@ -263,6 +265,10 @@
 
     // Initialize on page load
     window.addEventListener('DOMContentLoaded', (event) => {
+      // Store the selected waste type when changed
+      document.getElementById("type").addEventListener("change", function() {
+        lastSelectedType = this.value;
+      });
       initSession();
     });
 
@@ -377,7 +383,8 @@
 
     function clearInputsExceptDateAndLocation() {
       document.getElementById("weight").value = '';
-      document.getElementById("type").value = 'Plastic';
+      // Don't reset the type dropdown - keep the last selected value
+      document.getElementById("type").value = lastSelectedType;
     }
 
     function updateDisplay() {
